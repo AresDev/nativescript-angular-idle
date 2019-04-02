@@ -3,6 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 
 import { Item } from "./item";
 import { ItemService } from "./item.service";
+import { TimeoutService } from "../timeout.service";
 
 @Component({
     selector: "ns-details",
@@ -14,11 +15,13 @@ export class ItemDetailComponent implements OnInit {
 
     constructor(
         private itemService: ItemService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private timeoutService: TimeoutService
     ) { }
 
     ngOnInit(): void {
         const id = +this.route.snapshot.params.id;
         this.item = this.itemService.getItem(id);
+        this.timeoutService.start();
     }
 }
