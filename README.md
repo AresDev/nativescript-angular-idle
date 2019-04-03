@@ -28,7 +28,7 @@ userInteraction($event) {
   }
   ```
 
-But it was far that easy, in iOS this worked ok and the events were propagated to all the child components and we were able to intercept the event on every user interaction, but in android the event wasn't propagated to the child components(or at least didn't work for all scenarios by the time we were building the app :P), so I was forced to find another approach. 
+But it was far from easy, in iOS this worked ok and the events were propagated to all the child components and we were able to intercept the event on every user interaction, but in android the event wasn't propagated to the child components(or at least didn't work for all scenarios by the time we were building the app :P), so I was forced to find another approach. 
 
 
 ## Overriding native Android activity
