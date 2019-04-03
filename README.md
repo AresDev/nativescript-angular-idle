@@ -1,14 +1,10 @@
-# nativescript-angular-idle
-
 # Logout on user IDLE using RXJS in an Nativescript Angular Application
 
 Nativescript is an awesome framework for building native mobile applications for both iOS and Android platforms, I've beeen using it for a while now and I'm pretty happy with the results. 
 
-## Thes
-
 The latest application that I was working on, required an automatic logout on lack of user interactions (aka on user Idle).
 
-The first approach that I came up with, was creating a StackLayout wrapper for the page-router-outlet in the app component was using an event handlervin on the app component level this is makes sense because the app component is the container of all views inside the aplication. So I did as follows.
+The first approach that I came up with, was creating a StackLayout wrapper for the page-router-outlet in the app component; this makes sense because the app component is the container of all views inside the aplication. So I did as follows.
 
 Previously I had:
 
@@ -23,18 +19,21 @@ Then:
 </StackLayout>
 ```
 
-In the app.component.ts we could only create the event that is binded to the html and then use it to restart a timer to avoid the session to close like this:
+In the app.component.ts we could only create the event that is binded to the html and then use it to restart a timer to avoid the session to close it looks like this:
 
 
-`userInteraction($event) {
-  }`
+```typescript
+userInteraction($event) {
+    // do whatever you need to
+  }
+  ```
 
-It wasn't that easy, in iOS this worked ok and the events was propagated to all the child components and we were able to intercept the event on every user interaction, but in android the event wasn't propagated to the child components(or at least didn't work for all scenarios by the time we were building the app :P), so I was forced to find another approach. 
+But it was far that easy, in iOS this worked ok and the events were propagated to all the child components and we were able to intercept the event on every user interaction, but in android the event wasn't propagated to the child components(or at least didn't work for all scenarios by the time we were building the app :P), so I was forced to find another approach. 
 
 
 ## Overriding native Android activity
 
-Looking for alternatives to the mentioned problem in Android platform I found this [answer](https://stackoverflow.com/a/48789139/2989313) from Nick IIiev in StackOverflow when I first read about extending Activity or Aplication for the application, more information in this [detailed post](https://docs.nativescript.org/core-concepts/android-runtime/advanced-topics/extend-application-activity) on official Nativescript docs.
+Looking for alternatives to the mentioned problem in Android platform I found this [answer](https://stackoverflow.com/a/48789139/2989313) from Nick IIiev in StackOverflow. More information in this [detailed post](https://docs.nativescript.org/core-concepts/android-runtime/advanced-topics/extend-application-activity) on official Nativescript docs.
 
 ## Step by Step
 
@@ -46,15 +45,9 @@ Looking for alternatives to the mentioned problem in Android platform I found th
 
 2. cd to the newly created project
 
-3. Add rxjs dependency
+3. Open the newly created app in your prefered editor
 
-    ```sh
-     npm i rxjs
-     ```
-
-4. Open the newly created app in your prefered editor
-
-5. Modify your app.component.html to look like this:
+4. Modify your app.component.html to look like this:
 
     ```xml 
     <StackLayout (tap)="userInteraction($event)">
@@ -62,7 +55,7 @@ Looking for alternatives to the mentioned problem in Android platform I found th
     </StackLayout>
     ```
 
-6. Modify your app.component.ts to add the event handler for the tap event.
+5. Modify your app.component.ts to add the event handler for the tap event.
 
     ```typescript
     // The rest of the class is omitted for simplicity
@@ -75,7 +68,7 @@ Looking for alternatives to the mentioned problem in Android platform I found th
 
     Up to this point you should be able to intercept the user interactions of an iOS application and do whatever you need to do, like reset the idle timer, I will show you how to do that using rxjs interval later in this post.
 
-7. Create an empty file called user-interaction.ts and modify it to be like this.
+6. Create an empty file called user-interaction.ts and modify it to be like this.
 
     ```typescript
     import { Subject } from 'rxjs';
@@ -85,7 +78,7 @@ Looking for alternatives to the mentioned problem in Android platform I found th
 
     Here we make use of a rxjs Subject class to be able to comunicate between Android native aplication context and the Nativescript application so we can be able to intercept this event and respond in consecuence
 
-8. Install tns-platforms-declarations library as a dev dependency.
+7. Install tns-platforms-declarations library as a dev dependency.
 
     ```sh
      npm i tns-platform-declarations --save-dev
@@ -93,14 +86,14 @@ Looking for alternatives to the mentioned problem in Android platform I found th
 
     Be sure to add the skipLibCheck property in tsconfig.json file to avoid this lib check to take place and slow down your project compilation time
 
-9. Create a reference.d.ts file and add the following line:
+8. Create a reference.d.ts file and add the following line:
 
     ```typescript
     /// <reference path="./node_modules/tns-platform-declarations/android-21.d.ts" />
     ```
     This allows you to use Native Android APIs, you can learn more about it [here](https://docs.nativescript.org/core-concepts/accessing-native-apis-with-javascript#intellisense-and-access-to-the-native-apis-via-typescript)
 
-10. Create an empty file called activity.android.ts and modify it to be like this.
+9. Create an empty file called activity.android.ts and modify it to be like this.
 
     ```typescript
 
@@ -162,7 +155,7 @@ Looking for alternatives to the mentioned problem in Android platform I found th
 
     For the purpose of this written we only need to override the method onUserInteraction but the rest of the methods are shown for you to see the possibilities
 
-11. Modify your app.component.ts file again to add the subject emitter, it should look like this:
+10. Modify your app.component.ts file again to add the subject emitter, it should look like this:
 
     ```typescript
     // The rest of the class is omitted for simplicity
@@ -174,7 +167,7 @@ Looking for alternatives to the mentioned problem in Android platform I found th
         ANDROID_USER_ACTIVITY_EVENTS.next(null);
     }
     ```
-12. Create your timer logic service
+11. Create your timer logic service
 
     ```typescript
     import { Injectable } from "@angular/core";
@@ -246,7 +239,7 @@ Looking for alternatives to the mentioned problem in Android platform I found th
 
     ```
 
-15. Inject the TimeoutService and Init/Start the timer when ever you need(when user reaches dashboard after succesful login). 
+12. Inject the TimeoutService and Init/Start the timer when ever you need(when user reaches dashboard after succesful login). 
 
 
     In this case I did't when reaching ItemsDetailComponent in Angular default starter template
@@ -283,4 +276,6 @@ Looking for alternatives to the mentioned problem in Android platform I found th
     ```
 
     Don't forget to register TimeoutService in your module's providers :P
+
+And that's it, now you can implement this workflow in your NativeScript Angular applications, I'm eager to see if you have some comments about it or if exits a better way to accomplish it.
 
